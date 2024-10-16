@@ -130,12 +130,11 @@ PIDController<T>::PIDController(double p, double i, double d, std::function<T()>
 template <class T>
 T PIDController<T>::tick()
 {
-  currentFeedback = _pidSource();
-  if(enabled)
+  if (enabled)
   {
     //Retrieve system feedback from user callback.
+    currentFeedback = _pidSource();
     
-
     //Apply input bounds if necessary.
     if(inputBounded)
     {
@@ -205,7 +204,7 @@ T PIDController<T>::tick()
       long deltaTime = currentTime - lastTime;
 
       //Calculate the integral of the feedback data since last cycle.
-      int cycleIntegral = ((lastError + error) / 2) * deltaTime;
+      T cycleIntegral = ((lastError + error) / 2) * deltaTime;
 
       //Add this cycle's integral to the integral cumulation.
       integralCumulation += cycleIntegral;
@@ -219,7 +218,7 @@ T PIDController<T>::tick()
     //If we have no way to retrieve system time, estimate calculations.
     else
     {
-        integralCumulation += error;
+      integralCumulation += error;
       cycleDerivative = (error - lastError);
     }
 
@@ -228,7 +227,7 @@ T PIDController<T>::tick()
     if(integralCumulation < -maxCumulation) integralCumulation = -maxCumulation;
 
     //Calculate the system output based on data and PID gains.
-    output = (float) ((error * _p) + (integralCumulation * _i) + (cycleDerivative * _d));
+    output = (T) ((error * _p) + (integralCumulation * _i) + (cycleDerivative * _d));
 
     //Save a record of this iteration's data.
     lastFeedback = currentFeedback;
